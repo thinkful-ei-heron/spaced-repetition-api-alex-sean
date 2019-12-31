@@ -39,6 +39,12 @@ const LanguageService = {
       )
       .where('id', headId)
       .first()
+  },
+
+  updateScore(db, headId, newScore) {
+    return db('word')
+      .where('id', headId)
+      .update(newScore)
   }
 }
 
