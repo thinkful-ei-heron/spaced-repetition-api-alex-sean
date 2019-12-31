@@ -1,6 +1,7 @@
 const express = require('express')
 const LanguageService = require('./language-service')
 const { requireAuth } = require('../middleware/jwt-auth')
+const { wordsList } = require('../LinkedList')
 
 const languageRouter = express.Router()
 
@@ -33,10 +34,25 @@ languageRouter
         req.language.id,
       )
 
+      // if(words){
+      //   for(let i=0; i< words.length; i++){
+      //    wordsList.insertFirst(words[i].original)
+      // }
+      // }
+      // console.log(wordsList)
+
       res.json({
         language: req.language,
         words,
       })
+
+      // if(words[0]!==null || words[0] !== undefined){
+      //   for(let i=0; i< words.length; i++){
+      //    wordsList.insertFirst(words[i].original)
+      // }
+      // }
+      // console.log(wordsList)
+
       next()
     } catch (error) {
       next(error)
