@@ -30,19 +30,9 @@ const LinkedListService = {
     currNode.value.next = null;
     return List;
   },
-  moveItem(List, item, memory_value) {
-    let index = 0;
-    let currNode = List.head;
-    while(index !== memory_value) {
-      if(currNode) {
-        index++;
-        currNode = currNode.next;
-      } else return List.insertLast(item);
-    }
-
-    if(currNode) {
-      return List.insertAt(item, memory_value);
-    }
+  moveItem(List, item, memory_value, listLength) {
+    if(memory_value > listLength) return List.insertLast(item, memory_value);
+    else return List.insertAt(item, memory_value);
   },
   updateDatabaseFromList(List, db) {
     let currNode = List.head;

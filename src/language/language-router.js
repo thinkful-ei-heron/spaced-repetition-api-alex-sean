@@ -1,7 +1,6 @@
 const express = require('express')
 const LanguageService = require('./language-service')
 const { requireAuth } = require('../middleware/jwt-auth')
-const LinkedList = require('../LinkedList')
 const LinkedListService = require('./linked-list-service')
 
 const jsonBodyParser = express.json()
@@ -79,7 +78,7 @@ languageRouter
         WordList.head.value.incorrect_count++;
         let formerHead = WordList.head;
         WordList.head = WordList.head.next;
-        await LinkedListService.moveItem(WordList, formerHead.value, formerHead.value.memory_value - 1)
+        await LinkedListService.moveItem(WordList, formerHead.value, formerHead.value.memory_value - 1, words.length)
         await LinkedListService.updateNext(WordList)
         let newHead = WordList.head.value.id;
         await LanguageService.updateLanguage(db, newHead, langId, total_score);
@@ -99,7 +98,7 @@ languageRouter
         WordList.head.value.correct_count++;
         let formerHead = WordList.head;
         WordList.head = WordList.head.next;
-        await LinkedListService.moveItem(WordList, formerHead.value, formerHead.value.memory_value - 1)
+        await LinkedListService.moveItem(WordList, formerHead.value, formerHead.value.memory_value - 1, words.length)
         await LinkedListService.updateNext(WordList)
         let newHead = WordList.head.value.id
         await LanguageService.updateLanguage(db, newHead, langId, total_score)
