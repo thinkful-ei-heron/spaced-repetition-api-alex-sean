@@ -2,6 +2,7 @@ const express = require('express')
 const LanguageService = require('./language-service')
 const { requireAuth } = require('../middleware/jwt-auth')
 const LinkedList = require('../LinkedList')
+const LinkedListService = require('./linked-list-service')
 
 const jsonBodyParser = express.json()
 const languageRouter = express.Router()
@@ -60,57 +61,63 @@ languageRouter
     }
   })
 
-languageRouter
+  languageRouter
   .post('/guess', jsonBodyParser, async (req, res, next) => {
     const { guess } = req.body
+    const db = req.app.get('db')
+    const langId = req.language.id
+    let { total_score, head } = req.language
 
+    if(!guess) {
+      return res.status(400).json({ error: `Missing 'guess' in request body`}).end()
+    }
     try {
-      if(!guess) {
-        return res.status(400).json({ error: `Missing 'guess' in request body`}).end()
-      } 
-      const words = await LanguageService.getLanguageWords(req.app.get('db'), req.language.head)
-      let WordList = new LinkedList()
-      words.map(word => WordList.insertLast(word))
-      head_word = WordList.findId(req.language.head)
-      if(head_word.translation !== req.body.guess.toLowerCase()) {
-        //Set head, move former head
-        //then return the head
-        let returnStatus =  res.status(200).json({
-          nextWord: head_word.next.value.original,
-          totalScore: req.language.total_score,
-          wordCorrectCount: head_word.next.value.correct_count,
-          wordIncorrectCount: head_word.next.value.incorrect_count,
-          answer: head_word.value.translation,
+      let words = await LanguageService.getLanguageWords(db, langId)
+      let WordList = await LinkedListService.createList(words, head)
+      if(WordList.head.value.translation !== guess) {
+        WordList.head.value.memory_value = 1;
+        WordList.head.value.incorrect_count++;
+        let formerHead = WordList.head;
+        WordList.head = WordList.head.next;
+        await LinkedListService.moveItem(WordList, formerHead.value, formerHead.value.memory_value - 1)
+        await LinkedListService.updateNext(WordList)
+        let newHead = WordList.head.value.id;
+        await LanguageService.updateLanguage(db, newHead, langId, total_score);
+        await LinkedListService.updateDatabaseFromList(WordList, db)
+        let resObject = res.status(200).json({
+          nextWord: WordList.head.value.original,
+          totalScore: total_score,
+          wordCorrectCount: WordList.head.value.correct_count,
+          wordIncorrectCount: WordList.head.value.incorrect_count,
+          answer: formerHead.value.translation,
           isCorrect: false
         })
-        //Move former head to appropriate spot
-        let newItem = {
-          id: head_word.value.id,
-          original: head_word.value.original,
-          translation: head_word.value.translation,
-          language_id: head_word.value.language_id,
-          incorrect_count: head_word.value.incorrect_count + 1,
-          correct_count: head_word.value.correct_count,
-          memory_value: 1,
-          next: null
-        }
-        WordList.insertAt(newItem, newItem.memory_value)
-        WordList.head.value.incorrect_count++
+        return resObject;
+      } else {
+        total_score = total_score + 1;
+        WordList.head.value.memory_value = WordList.head.value.memory_value * 2;
+        WordList.head.value.correct_count++;
+        let formerHead = WordList.head;
         WordList.head = WordList.head.next;
-        let currNode = WordList.head
-        while(currNode !== null) {
-          if(!currNode.next) {
-            currNode.value.next = WordList.head.value.id
-          } else {
-            currNode.value.next = currNode.next.value.id
-          }
-          currNode = currNode.next
-        }
-        return returnStatus;
+        await LinkedListService.moveItem(WordList, formerHead.value, formerHead.value.memory_value - 1)
+        await LinkedListService.updateNext(WordList)
+        let newHead = WordList.head.value.id
+        await LanguageService.updateLanguage(db, newHead, langId, total_score)
+        await LinkedListService.updateDatabaseFromList(WordList, db)
+        let resObject = res.status(200).json({
+          nextWord: WordList.head.value.original,
+          totalScore: total_score,
+          wordCorrectCount: WordList.head.value.correct_count,
+          wordIncorrectCount: WordList.head.value.incorrect_count,
+          answer: formerHead.value.translation,
+          isCorrect: true
+        })
+        return resObject
       }
     } catch (error) {
       next(error)
     }
+
   })
 
 module.exports = languageRouter

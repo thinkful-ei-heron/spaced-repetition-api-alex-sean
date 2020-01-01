@@ -56,6 +56,27 @@ class LinkedList {
     }
     return currNode;
   }
+  removeById(id) {
+    if(!this.head) {
+      return null;
+    }
+    if(this.head.value.id === id) {
+      this.head = this.head.next;
+      return;
+    }
+    let currNode = this.head;
+    let previousNode = this.head;
+
+    while((currNode !== null) && (currNode.value.id !== id)) {
+      previousNode = currNode;
+      currNode = currNode.next;
+    }
+    if (currNode === null) {
+      console.log('Item not found');
+      return;
+    }
+    previousNode.next = currNode.next;
+  }
   remove(item) {
     if (!this.head) {
       return null;
