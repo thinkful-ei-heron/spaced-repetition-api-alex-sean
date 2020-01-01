@@ -98,7 +98,7 @@ languageRouter
         WordList.head.value.correct_count++;
         let formerHead = WordList.head;
         WordList.head = WordList.head.next;
-        await LinkedListService.moveItem(WordList, formerHead.value, formerHead.value.memory_value - 1, words.length)
+        WordList = await LinkedListService.moveItem(WordList, formerHead.value, formerHead.value.memory_value - 1, words.length)
         await LinkedListService.updateNext(WordList)
         let newHead = WordList.head.value.id
         await LanguageService.updateLanguage(db, newHead, langId, total_score)

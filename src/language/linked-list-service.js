@@ -31,8 +31,9 @@ const LinkedListService = {
     return List;
   },
   moveItem(List, item, memory_value, listLength) {
-    if(memory_value > listLength) return List.insertLast(item, memory_value);
-    else return List.insertAt(item, memory_value);
+    if(memory_value > listLength) List.insertLast(item, memory_value);
+    else List.insertAt(item, memory_value);
+    return List;
   },
   updateDatabaseFromList(List, db) {
     let currNode = List.head;
