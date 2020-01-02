@@ -35,10 +35,10 @@ const LinkedListService = {
     else List.insertAt(item, memory_value);
     return List;
   },
-  updateDatabaseFromList(List, db) {
+  async updateDatabaseFromList(List, db) {
     let currNode = List.head;
     while(currNode) {
-      LanguageService.updateDbWords(db, currNode.value.id, currNode.value);
+      await LanguageService.updateDbWords(db, currNode.value.id, currNode.value);
       currNode = currNode.next;
     }
     return;
@@ -46,6 +46,7 @@ const LinkedListService = {
   displayList(List) {
     let currNode = List.head;
     while(currNode) {
+      console.log(currNode.value)
       currNode = currNode.next;
     }
   }
