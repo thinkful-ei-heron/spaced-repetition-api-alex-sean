@@ -41,11 +41,40 @@ const LanguageService = {
       .first()
   },
 
-  updateScore(db, headId, newScore) {
+  // updateScore(db, headId, newScore) {
+  //   return db('word')
+  //     .where('id', headId)
+  //     .update(newScore)
+  // },
+
+
+  updateIncorrectCount(db, word){
     return db('word')
-      .where('id', headId)
-      .update(newScore)
+      .where('id', word.id)
+      .update('incorrect_count' , 'incorrect_count'+1)
+      .returning()
+  },
+
+  updateDatabaseWords(db, updateWord){
+    let word_id  = updateWord.id
+    return db('word')
+      .where('id', word_id)
+      .update({'next': updateWord.next, 'incorrect_count':updateWord.incorrect_count})
+      .returning()
+  },
+  
+  updateLanguage(db, id, data) {
+    return db('language')
+            .where({id:id})
+            .update({head:data})
+            .returning()
   }
+
+  // updateHead(db, headId, newHead) {
+  //   return db('language')
+  //     .where()
+      
+  // }
 }
 
 module.exports = LanguageService

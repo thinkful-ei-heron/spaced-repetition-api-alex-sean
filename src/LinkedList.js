@@ -25,6 +25,17 @@ class LinkedList {
       tempNode.next = new _Node(item, null);
     }
   }
+  clearList(){
+    if(this.head.next){
+      let count = 0
+      let curr = this.head
+      while(curr){
+        curr=curr.next
+        count++
+        console.log(curr.value.original + 'YaddyYo')
+      }
+    }
+  }
   findId(id) {
     let currNode = this.head;
     if(!this.head) {
@@ -144,4 +155,8 @@ class LinkedList {
   }
 }
 
-module.exports = LinkedList;
+let WordList = new LinkedList();
+
+module.exports = {
+  WordList
+};
