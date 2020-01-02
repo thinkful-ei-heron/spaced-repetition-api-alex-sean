@@ -41,40 +41,38 @@ const LanguageService = {
       .first()
   },
 
-  // updateScore(db, headId, newScore) {
-  //   return db('word')
-  //     .where('id', headId)
-  //     .update(newScore)
-  // },
-
-
-  updateIncorrectCount(db, word){
-    return db('word')
-      .where('id', word.id)
-      .update('incorrect_count' , 'incorrect_count'+1)
-      .returning()
+  getWordById(db, id) {
+    return db
+      .from('word')
+      .select('*')
+      .where('id', id)
+      .first()
   },
 
-  updateDatabaseWords(db, updateWord){
-    let word_id  = updateWord.id
-    return db('word')
-      .where('id', word_id)
-      .update({'next': updateWord.next, 'incorrect_count':updateWord.incorrect_count})
-      .returning()
+  updateDbWords(db, id, data) {
+    return db
+      .from('word')
+      .update({ incorrect_count: data.incorrect_count, 
+                next: data.next, 
+                memory_value: data.memory_value,
+                correct_count: data.correct_count })
+      .where({ id: id })
+      .returning('*')
+      .then(([word]) => word)
   },
-  
-  updateLanguage(db, id, data) {
-    return db('language')
-            .where({id:id})
-            .update({head:data})
-            .returning()
-  }
 
-  // updateHead(db, headId, newHead) {
-  //   return db('language')
-  //     .where()
-      
-  // }
+  updateLanguage(db, head_id, language_id, score) {
+    return db
+      .from('language')
+      .update({
+        head: head_id,
+        total_score: score
+      })
+      .where({ id: language_id })
+      .returning('*')
+      .then(([language]) => language)
+  },
+
 }
 
 module.exports = LanguageService
