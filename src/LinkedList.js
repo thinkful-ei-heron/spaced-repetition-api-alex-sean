@@ -152,7 +152,7 @@ class LinkedList {
     let currNode = this.head;
     while (stepper !== pos) {
       stepper++;
-      currNode = this.head.next;
+      currNode = currNode.next;
     }
     if (currNode === null) {
       console.log('Item not found');

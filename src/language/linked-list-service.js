@@ -31,7 +31,6 @@ const LinkedListService = {
     return List;
   },
   moveItem(List, item, memory_value, listLength) {
-    console.log('memory_value: '+memory_value + 1)
     if(memory_value > listLength) List.insertLast(item, memory_value);
     else List.insertAt(item, memory_value);
     return List;
